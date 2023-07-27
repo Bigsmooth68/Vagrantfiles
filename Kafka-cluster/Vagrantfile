@@ -1,0 +1,20 @@
+Vagrant.configure("2") do |config|
+
+	nbNodes=3
+	(1..nbNodes).each do |i|
+		config.vm.define "node#{i}" do |node|
+			node.vm.box = "generic/alpine317" #"generic/oracle8"
+			node.vm.hostname = "node#{i}"
+			node.vm.network :private_network, ip: "192.168.33.15#{i}"
+			node.vm.network :forwarded_port, guest: 22, host: 5550+i, id: 'ssh'
+			node.vm.provider "virtualbox" do |v|
+				v.memory = 1024
+				v.cpus = 1
+			  end
+			config.vm.provision "shell", inline: <<-SHELL
+			  sudo apk update
+			  sudo apk upgrade
+			SHELL
+		end
+	end
+end
